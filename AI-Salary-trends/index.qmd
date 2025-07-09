@@ -1,0 +1,8 @@
+---
+title: "AI-Salary-trends"
+---
+
+This is a Quarto website.
+
+To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+
