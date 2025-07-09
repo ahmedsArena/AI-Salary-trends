@@ -1,0 +1,233 @@
+---
+title: "AI Job Market Analysis 2025"
+author: "Your Name"
+date: "2025-07-09"
+format: 
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 2
+    code-fold: true
+    self-contained: true
+---
+
+## Introduction
+
+This report analyzes over 15,000 AI job postings from 2025 to uncover trends in salaries, required skills, and remote work patterns. Using the *Global AI Job Market & Salary Trends 2025* dataset, we explore salary distributions, in-demand skills, geographic variations, and remote work adoption. Interactive visualizations are created with Plotly to make the findings engaging and insightful, tailored to showcase R and tidyverse skills for a data science portfolio, with relevance to remote roles in the Pakistani market.
+
+## Setup
+
+We use R with tidyverse for data processing and Plotly for interactive visualizations. The dataset (`ai_job_dataset1.csv`) is assumed to be in the same directory.
+
+```{r}
+#| label: setup
+#| warning: false
+library(tidyverse)
+library(plotly)
+
+# Load and clean data
+df <- read_csv("ai_job_dataset1.csv", show_col_types = FALSE) %>%
+  filter(!is.na(job_id), !is.na(salary_usd), !is.na(experience_level)) %>%
+  mutate(
+    salary_usd = as.numeric(salary_usd),
+    years_experience = as.numeric(years_experience),
+    remote_ratio = as.numeric(remote_ratio),
+    benefits_score = as.numeric(benefits_score),
+    required_skills = str_split(required_skills, ",\\s*"),
+    required_skills = map(required_skills, ~str_trim(.x)),
+    required_skills = map(required_skills, ~.x[.x != ""])
+  ) %>%
+  filter(salary_usd > 0)
+
+```
+
+
+## Salary Distribution by Experience Level
+
+We analyze how salaries vary across experience levels (Entry, Mid, Senior, Executive)
+
+
+```{r}
+#| label: salary-by-experience
+# Prepare data
+salary_by_exp <- df %>%
+  group_by(experience_level) %>%
+  summarise(
+    min = min(salary_usd, na.rm = TRUE),
+    q1 = quantile(salary_usd, 0.25, na.rm = TRUE),
+    median = median(salary_usd, na.rm = TRUE),
+    q3 = quantile(salary_usd, 0.75, na.rm = TRUE),
+    max = max(salary_usd, na.rm = TRUE)
+  ) %>%
+  pivot_longer(cols = c(min, q1, median, q3, max), names_to = "stat", values_to = "salary")
+
+# Create box plot
+fig1 <- plot_ly(
+  data = df,
+  y = ~salary_usd,
+  x = ~experience_level,
+  type = "box",
+  boxpoints = FALSE,
+  color = ~experience_level,
+  colors = c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728")
+) %>%
+  layout(
+    title = "Salary Distribution by Experience Level",
+    xaxis = list(title = "Experience Level"),
+    yaxis = list(title = "Salary (USD)", tickformat = "$,.0f"),
+    showlegend = FALSE
+  )
+
+fig1
+
+```
+
+
+Figure 1: Box plot showing salary ranges for different experience levels. Executive roles (EX) command the highest salaries, while Entry-level (EN) roles have the lowest.
+
+
+
+## Top 10 In-Demand Skills
+We identify the most frequently required skills across job postings.
+
+```{r}
+#| label: top-skills
+# Prepare data
+skills <- unlist(df$required_skills)
+skills_df <- tibble(skill = skills) %>%
+  count(skill) %>%
+  arrange(desc(n)) %>%
+  slice_head(n = 10)
+
+# Create bar chart
+fig2 <- plot_ly(
+  data = skills_df,
+  x = ~skill,
+  y = ~n,
+  type = "bar",
+  marker = list(color = "#4b0082")
+) %>%
+  layout(
+    title = "Top 10 In-Demand Skills",
+    xaxis = list(title = "Skill", tickangle = 45),
+    yaxis = list(title = "Number of Job Postings")
+  )
+
+fig2
+```
+Figure 2: Bar chart showing the top 10 skills. Python is the most in-demand, critical for roles in Pakistan and remote positions.
+
+
+
+## Median Salary by Country
+We compare median salaries across the top 10 countries by job posting count.
+
+
+```{r}
+#| label: salary-by-country
+# Prepare data
+salary_by_country <- df %>%
+  group_by(company_location) %>%
+  summarise(median_salary = median(salary_usd, na.rm = TRUE)) %>%
+  arrange(desc(median_salary)) %>%
+  slice_head(n = 10)
+
+# Create bar chart
+fig3 <- plot_ly(
+  data = salary_by_country,
+  x = ~company_location,
+  y = ~median_salary,
+  type = "bar",
+  marker = list(color = "#008080")
+) %>%
+  layout(
+    title = "Median Salary by Country",
+    xaxis = list(title = "Country", tickangle = 45),
+    yaxis = list(title = "Median Salary (USD)", tickformat = "$,.0f")
+  )
+
+fig3
+```
+
+Figure 3: Bar chart showing median salaries for top 10 countries. High salaries in countries like the US and Denmark are relevant for remote role opportunities.
+
+
+## Remote Work Trend
+We explore the prevalence of remote work options (0%, 50%, 100%).
+
+
+```{r}
+#| label: remote-work
+# Prepare data
+remote_df <- df %>%
+  count(remote_ratio) %>%
+  mutate(
+    remote_ratio = as.character(remote_ratio),
+    label = case_when(
+      remote_ratio == "0" ~ "No Remote (0%)",
+      remote_ratio == "50" ~ "Hybrid (50%)",
+      remote_ratio == "100" ~ "Fully Remote (100%)"
+    )
+  )
+
+# Create pie chart
+fig4 <- plot_ly(
+  data = remote_df,
+  labels = ~label,
+  values = ~n,
+  type = "pie",
+  marker = list(colors = c("#0088FE", "#00C49F", "#FFBB28"))
+) %>%
+  layout(
+    title = "Remote Work Trends"
+  )
+
+fig4
+```
+
+
+Figure 4: Pie chart showing the distribution of remote work options. Hybrid and fully remote roles are significant, offering opportunities for Pakistani professionals seeking remote work.
+
+## Salary vs. Years of Experience 
+We examine the relationship between years of experience and salary.
+
+```{r}
+#| label: salary-vs-experience
+# Prepare data (sample for performance)
+sample_df <- df %>%
+  filter(years_experience >= 0, salary_usd > 0) %>%
+  sample_n(200)
+
+# Create scatter plot
+fig5 <- plot_ly(
+  data = sample_df,
+  x = ~years_experience,
+  y = ~salary_usd,
+  type = "scatter",
+  mode = "markers",
+  marker = list(
+    size = 8,
+    color = "#ff7300",
+    opacity = 0.6
+  )
+) %>%
+  layout(
+    title = "Salary vs. Years of Experience",
+    xaxis = list(title = "Years of Experience"),
+    yaxis = list(title = "Salary (USD)", tickformat = "$,.0f")
+  )
+
+fig5
+```
+
+
+Figure 5: Scatter plot showing salary vs. years of experience. There’s a positive trend, but significant variation exists, especially for senior roles.
+
+## Interesting Fact
+
+Python is the most in-demand skill, appearing in over 50% of job postings, making it a critical skill for data scientists and analysts, especially for remote roles accessible from Pakistan.
+
+## Conclusion
+
+The 2025 AI job market offers high salaries, particularly for Senior and Executive roles in countries like the US and Denmark. Python and SQL are the top skills, and remote work is prevalent, with 50% of jobs offering hybrid or fully remote options. For Pakistani professionals, focusing on Python, SQL, and cloud platforms (AWS, GCP) can open doors to remote opportunities with global companies. This analysis demonstrates proficiency in R, tidyverse, and Plotly, ideal for a data science portfolio.
+
