@@ -1,0 +1,79 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "AI Job Market Analysis 2025",
+    "section": "",
+    "text": "This report analyzes over 15,000 AI job postings from 2025 to uncover trends in salaries, required skills, and remote work patterns. Using the Global AI Job Market & Salary Trends 2025 dataset, we explore salary distributions, in-demand skills, geographic variations, and remote work adoption. Interactive visualizations are created with Plotly to make the findings engaging and insightful, tailored to showcase R and tidyverse skills for a data science portfolio, with relevance to remote roles in the Pakistani market."
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "AI Job Market Analysis 2025",
+    "section": "",
+    "text": "This report analyzes over 15,000 AI job postings from 2025 to uncover trends in salaries, required skills, and remote work patterns. Using the Global AI Job Market & Salary Trends 2025 dataset, we explore salary distributions, in-demand skills, geographic variations, and remote work adoption. Interactive visualizations are created with Plotly to make the findings engaging and insightful, tailored to showcase R and tidyverse skills for a data science portfolio, with relevance to remote roles in the Pakistani market."
+  },
+  {
+    "objectID": "index.html#setup",
+    "href": "index.html#setup",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Setup",
+    "text": "Setup\nWe use R with tidyverse for data processing and Plotly for interactive visualizations. The dataset (ai_job_dataset1.csv) is assumed to be in the same directory.\n\n\nCode\nlibrary(tidyverse)\nlibrary(plotly)\n\n# Load and clean data\ndf &lt;- read_csv(\"ai_job_dataset1.csv\", show_col_types = FALSE) %&gt;%\n  filter(!is.na(job_id), !is.na(salary_usd), !is.na(experience_level)) %&gt;%\n  mutate(\n    salary_usd = as.numeric(salary_usd),\n    years_experience = as.numeric(years_experience),\n    remote_ratio = as.numeric(remote_ratio),\n    benefits_score = as.numeric(benefits_score),\n    required_skills = str_split(required_skills, \",\\\\s*\"),\n    required_skills = map(required_skills, ~str_trim(.x)),\n    required_skills = map(required_skills, ~.x[.x != \"\"])\n  ) %&gt;%\n  filter(salary_usd &gt; 0)"
+  },
+  {
+    "objectID": "index.html#salary-distribution-by-experience-level",
+    "href": "index.html#salary-distribution-by-experience-level",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Salary Distribution by Experience Level",
+    "text": "Salary Distribution by Experience Level\nWe analyze how salaries vary across experience levels (Entry, Mid, Senior, Executive)\n\n\nCode\n# Prepare data\nsalary_by_exp &lt;- df %&gt;%\n  group_by(experience_level) %&gt;%\n  summarise(\n    min = min(salary_usd, na.rm = TRUE),\n    q1 = quantile(salary_usd, 0.25, na.rm = TRUE),\n    median = median(salary_usd, na.rm = TRUE),\n    q3 = quantile(salary_usd, 0.75, na.rm = TRUE),\n    max = max(salary_usd, na.rm = TRUE)\n  ) %&gt;%\n  pivot_longer(cols = c(min, q1, median, q3, max), names_to = \"stat\", values_to = \"salary\")\n\n# Create box plot\nfig1 &lt;- plot_ly(\n  data = df,\n  y = ~salary_usd,\n  x = ~experience_level,\n  type = \"box\",\n  boxpoints = FALSE,\n  color = ~experience_level,\n  colors = c(\"#1f77b4\", \"#ff7f0e\", \"#2ca02c\", \"#d62728\")\n) %&gt;%\n  layout(\n    title = \"Salary Distribution by Experience Level\",\n    xaxis = list(title = \"Experience Level\"),\n    yaxis = list(title = \"Salary (USD)\", tickformat = \"$,.0f\"),\n    showlegend = FALSE\n  )\n\nfig1\n\n\n\n\n\n\nFigure 1: Box plot showing salary ranges for different experience levels. Executive roles (EX) command the highest salaries, while Entry-level (EN) roles have the lowest."
+  },
+  {
+    "objectID": "index.html#top-10-in-demand-skills",
+    "href": "index.html#top-10-in-demand-skills",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Top 10 In-Demand Skills",
+    "text": "Top 10 In-Demand Skills\nWe identify the most frequently required skills across job postings.\n\n\nCode\n# Prepare data\nskills &lt;- unlist(df$required_skills)\nskills_df &lt;- tibble(skill = skills) %&gt;%\n  count(skill) %&gt;%\n  arrange(desc(n)) %&gt;%\n  slice_head(n = 10)\n\n# Create bar chart\nfig2 &lt;- plot_ly(\n  data = skills_df,\n  x = ~skill,\n  y = ~n,\n  type = \"bar\",\n  marker = list(color = \"#4b0082\")\n) %&gt;%\n  layout(\n    title = \"Top 10 In-Demand Skills\",\n    xaxis = list(title = \"Skill\", tickangle = 45),\n    yaxis = list(title = \"Number of Job Postings\")\n  )\n\nfig2\n\n\n\n\n\n\nFigure 2: Bar chart showing the top 10 skills. Python is the most in-demand, critical for roles in Pakistan and remote positions."
+  },
+  {
+    "objectID": "index.html#median-salary-by-country",
+    "href": "index.html#median-salary-by-country",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Median Salary by Country",
+    "text": "Median Salary by Country\nWe compare median salaries across the top 10 countries by job posting count.\n\n\nCode\n# Prepare data\nsalary_by_country &lt;- df %&gt;%\n  group_by(company_location) %&gt;%\n  summarise(median_salary = median(salary_usd, na.rm = TRUE)) %&gt;%\n  arrange(desc(median_salary)) %&gt;%\n  slice_head(n = 10)\n\n# Create bar chart\nfig3 &lt;- plot_ly(\n  data = salary_by_country,\n  x = ~company_location,\n  y = ~median_salary,\n  type = \"bar\",\n  marker = list(color = \"#008080\")\n) %&gt;%\n  layout(\n    title = \"Median Salary by Country\",\n    xaxis = list(title = \"Country\", tickangle = 45),\n    yaxis = list(title = \"Median Salary (USD)\", tickformat = \"$,.0f\")\n  )\n\nfig3\n\n\n\n\n\n\nFigure 3: Bar chart showing median salaries for top 10 countries. High salaries in countries like the US and Denmark are relevant for remote role opportunities."
+  },
+  {
+    "objectID": "index.html#remote-work-trend",
+    "href": "index.html#remote-work-trend",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Remote Work Trend",
+    "text": "Remote Work Trend\nWe explore the prevalence of remote work options (0%, 50%, 100%).\n\n\nCode\n# Prepare data\nremote_df &lt;- df %&gt;%\n  count(remote_ratio) %&gt;%\n  mutate(\n    remote_ratio = as.character(remote_ratio),\n    label = case_when(\n      remote_ratio == \"0\" ~ \"No Remote (0%)\",\n      remote_ratio == \"50\" ~ \"Hybrid (50%)\",\n      remote_ratio == \"100\" ~ \"Fully Remote (100%)\"\n    )\n  )\n\n# Create pie chart\nfig4 &lt;- plot_ly(\n  data = remote_df,\n  labels = ~label,\n  values = ~n,\n  type = \"pie\",\n  marker = list(colors = c(\"#0088FE\", \"#00C49F\", \"#FFBB28\"))\n) %&gt;%\n  layout(\n    title = \"Remote Work Trends\"\n  )\n\nfig4\n\n\n\n\n\n\nFigure 4: Pie chart showing the distribution of remote work options. Hybrid and fully remote roles are significant, offering opportunities for Pakistani professionals seeking remote work."
+  },
+  {
+    "objectID": "index.html#salary-vs.-years-of-experience",
+    "href": "index.html#salary-vs.-years-of-experience",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Salary vs. Years of Experience",
+    "text": "Salary vs. Years of Experience\nWe examine the relationship between years of experience and salary.\n\n\nCode\n# Prepare data (sample for performance)\nsample_df &lt;- df %&gt;%\n  filter(years_experience &gt;= 0, salary_usd &gt; 0) %&gt;%\n  sample_n(200)\n\n# Create scatter plot\nfig5 &lt;- plot_ly(\n  data = sample_df,\n  x = ~years_experience,\n  y = ~salary_usd,\n  type = \"scatter\",\n  mode = \"markers\",\n  marker = list(\n    size = 8,\n    color = \"#ff7300\",\n    opacity = 0.6\n  )\n) %&gt;%\n  layout(\n    title = \"Salary vs. Years of Experience\",\n    xaxis = list(title = \"Years of Experience\"),\n    yaxis = list(title = \"Salary (USD)\", tickformat = \"$,.0f\")\n  )\n\nfig5\n\n\n\n\n\n\nFigure 5: Scatter plot showing salary vs. years of experience. There’s a positive trend, but significant variation exists, especially for senior roles."
+  },
+  {
+    "objectID": "index.html#interesting-fact",
+    "href": "index.html#interesting-fact",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Interesting Fact",
+    "text": "Interesting Fact\nPython is the most in-demand skill, appearing in over 50% of job postings, making it a critical skill for data scientists and analysts, especially for remote roles accessible from Pakistan."
+  },
+  {
+    "objectID": "index.html#conclusion",
+    "href": "index.html#conclusion",
+    "title": "AI Job Market Analysis 2025",
+    "section": "Conclusion",
+    "text": "Conclusion\nThe 2025 AI job market offers high salaries, particularly for Senior and Executive roles in countries like the US and Denmark. Python and SQL are the top skills, and remote work is prevalent, with 50% of jobs offering hybrid or fully remote options. For Pakistani professionals, focusing on Python, SQL, and cloud platforms (AWS, GCP) can open doors to remote opportunities with global companies. This analysis demonstrates proficiency in R, tidyverse, and Plotly, ideal for a data science portfolio."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  }
+]
