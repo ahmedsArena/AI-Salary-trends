@@ -4,14 +4,14 @@
     "href": "index.html",
     "title": "AI Job Market Analysis 2025",
     "section": "",
-    "text": "This report analyzes over 15,000 AI job postings from 2025 to uncover trends in salaries, required skills, and remote work patterns. Using the Global AI Job Market & Salary Trends 2025 dataset, we explore salary distributions, in-demand skills, geographic variations, and remote work adoption. Interactive visualizations are created with Plotly to make the findings engaging and insightful, tailored to showcase R and tidyverse skills for a data science portfolio, with relevance to remote roles in the Pakistani market."
+    "text": "This report analyzes over 15,000 AI job postings from 2025 to uncover trends in salaries, required skills, and remote work patterns.\nUsing the Global AI Job Market & Salary Trends 2025 dataset, we explore salary distributions, in-demand skills, geographic variations, and remote work adoption. Interactive visualizations are created with Plotly to make the findings engaging and insightful, tailored to showcase R and tidyverse skills for a data science portfolio, with relevance to remote roles in the Pakistani market."
   },
   {
     "objectID": "index.html#introduction",
     "href": "index.html#introduction",
     "title": "AI Job Market Analysis 2025",
     "section": "",
-    "text": "This report analyzes over 15,000 AI job postings from 2025 to uncover trends in salaries, required skills, and remote work patterns. Using the Global AI Job Market & Salary Trends 2025 dataset, we explore salary distributions, in-demand skills, geographic variations, and remote work adoption. Interactive visualizations are created with Plotly to make the findings engaging and insightful, tailored to showcase R and tidyverse skills for a data science portfolio, with relevance to remote roles in the Pakistani market."
+    "text": "This report analyzes over 15,000 AI job postings from 2025 to uncover trends in salaries, required skills, and remote work patterns.\nUsing the Global AI Job Market & Salary Trends 2025 dataset, we explore salary distributions, in-demand skills, geographic variations, and remote work adoption. Interactive visualizations are created with Plotly to make the findings engaging and insightful, tailored to showcase R and tidyverse skills for a data science portfolio, with relevance to remote roles in the Pakistani market."
   },
   {
     "objectID": "index.html#setup",
@@ -74,6 +74,6 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this site"
+    "text": "An visual depiction of “GLOBAL SALARY TRENDS IN AI JOB MARKET” using data from kaggle https://www.kaggle.com/datasets/bismasajjad/global-ai-job-market-and-salary-trends-2025/data\nby Ahmed Hasan"
   }
 ]
